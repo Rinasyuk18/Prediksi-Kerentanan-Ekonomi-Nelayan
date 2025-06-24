@@ -47,6 +47,20 @@ if submit:
     for col in label_encoders:
         data_input[col] = label_encoders[col].transform(data_input[col])
 
+    # ============================
+# Cek kolom di data_input vs label_encoders
+# ============================
+print("🟩 Kolom yang dimasukkan (data_input):", data_input.columns.tolist())
+print("🟨 Kolom yang harus diencode:", list(label_encoders.keys()))
+
+# Pastikan semua kolom kategorikal cocok
+for col in label_encoders:
+    if col in data_input.columns:
+        data_input[col] = label_encoders[col].transform(data_input[col])
+    else:
+        print(f"⚠️ Kolom '{col}' tidak ditemukan di data_input. Cek penulisan kolom.")
+
+
     data_scaled = scaler.transform(data_input)
     pred = model.predict(data_scaled)[0]
     label = target_encoder.inverse_transform([pred])[0]
