@@ -3,7 +3,7 @@ import joblib
 import numpy as np
 import pandas as pd
 
-# Load model dan alat bantu
+# Load model dan tools
 model = joblib.load('ada_model.pkl')
 scaler = joblib.load('scaler.pkl')
 label_encoders = joblib.load('label_encoder.pkl')
@@ -12,7 +12,6 @@ target_encoder = joblib.load('target_encoder.pkl')
 st.title("📊 Prediksi Kerentanan Ekonomi Nelayan")
 st.markdown("Masukkan data nelayan untuk melihat kategori kerentanannya.")
 
-# Form input
 with st.form("form_nelayan"):
     produksi = st.number_input("Produksi Tahunan (kg)", min_value=0)
     jenis_ikan = st.selectbox("Jenis Ikan Utama", label_encoders['Jenis_Ikan_Utama'].classes_)
@@ -28,12 +27,11 @@ with st.form("form_nelayan"):
 
     submit = st.form_submit_button("Prediksi")
 
-# Proses prediksi
 if submit:
     data_input = pd.DataFrame([{
         'produksi_tahunan': produksi,
         'Jenis_Ikan_Utama': jenis_ikan,
-        'Pendapatan_Rata2': pendapatan,
+        'Pendapatan_Rata_per_Tahun': pendapatan,
         'Jenis_Alat_Tangkap': alat_tangkap,
         'Lama_Berpenghasilan': lama_usaha,
         'Mangrove_Terdegradasi': mangrove,
@@ -44,23 +42,20 @@ if submit:
         'Pendidikan_Terakhir': pendidikan
     }])
 
-    # Cek kolom
-st.write("Kolom dari input:", data_input.columns.tolist())
-st.write("Kolom dari label encoder:", list(label_encoders.keys()))
+    # Debug kolom
+    st.write("📋 Kolom dari data_input:", data_input.columns.tolist())
+    st.write("📋 Kolom yang butuh encoding:", list(label_encoders.keys()))
 
-# Transformasi hanya jika kolom cocok
-for col in label_encoders:
-    if col in data_input.columns:
-        data_input[col] = label_encoders[col].transform(data_input[col])
-    else:
-        st.warning(f"⚠️ Kolom '{col}' tidak ditemukan. Cek lagi nama kolom input.")
-        
-
+    # Encode kolom kategorikal
     for col in label_encoders:
-        data_input[col] = label_encoders[col].transform(data_input[col])
+        if col in data_input.columns:
+            data_input[col] = label_encoders[col].transform(data_input[col])
+        else:
+            st.warning(f"⚠️ Kolom '{col}' tidak ditemukan. Cek nama kolom.")
 
+    # Prediksi
     data_scaled = scaler.transform(data_input)
     pred = model.predict(data_scaled)[0]
     label = target_encoder.inverse_transform([pred])[0]
 
-    st.success(f"Kategori Kerentanan Ekonomi: {label}")
+    st.success(f"✅ Kategori Kerentanan Ekonomi: {label}")
