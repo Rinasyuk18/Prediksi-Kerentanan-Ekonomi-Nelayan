@@ -47,18 +47,31 @@ if submit:
     for col in label_encoders:
         data_input[col] = label_encoders[col].transform(data_input[col])
 
-    # ============================
-# Cek kolom di data_input vs label_encoders
-# ============================
+   # Input manual dari user
+data_input = pd.DataFrame([{
+    'produksi_tahunan': produksi_tahunan,
+    'Jenis_Ikan_Utama': jenis_ikan,
+    'Pendapatan_Rata2': pendapatan,
+    'Jenis_Alat_Tangkap': alat_tangkap,
+    'Lama_Berpenghasilan': lama_usaha,
+    'Mangrove_Terdegradasi': mangrove,
+    'Akses_Market': akses_market,
+    'Indeks_Pencemaran': pencemaran,
+    'Indeks_Reklamasi': reklamasi,
+    'Ada_Bantuan': 1 if bantuan_input == 'ya' else 0,
+    'Pendidikan_Terakhir': pendidikan
+}])
+
+# ⬇ Tambahkan kode ini di sini
 print("🟩 Kolom yang dimasukkan (data_input):", data_input.columns.tolist())
 print("🟨 Kolom yang harus diencode:", list(label_encoders.keys()))
 
-# Pastikan semua kolom kategorikal cocok
 for col in label_encoders:
     if col in data_input.columns:
         data_input[col] = label_encoders[col].transform(data_input[col])
     else:
         print(f"⚠️ Kolom '{col}' tidak ditemukan di data_input. Cek penulisan kolom.")
+
 
 
     data_scaled = scaler.transform(data_input)
